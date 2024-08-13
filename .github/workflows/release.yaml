@@ -1,0 +1,41 @@
+name: Release Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.arch }} build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - x86_64
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          path: 'luci-app-shadowsocks-rust'
+
+      - name: Build
+        uses: openwrt/gh-action-sdk@main
+        env:
+          ARCH: ${{ matrix.arch }}
+          PACKAGES: luci-app-shadowsocks-rust
+          FEEDNAME: packages_ci
+          NO_REFRESH_CHECK: true
+
+      - name: Store packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: all-packages
+          path: bin/packages/${{ matrix.arch }}/packages_ci/*.ipk
+
+      - name: Upload packages
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.workflow_token }}
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: "bin/packages/${{ matrix.arch }}/packages_ci/*.ipk"
