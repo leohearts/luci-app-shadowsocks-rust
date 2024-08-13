@@ -25,9 +25,11 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}
           PACKAGES: luci-app-shadowsocks-rust
+          FEEDNAME: packages_ci
+          NO_REFRESH_CHECK: true
 
       - name: Store packages
         uses: actions/upload-artifact@v2
         with:
           name: all-packages
-          path: bin/packages/${{ matrix.arch }}/packages/*.ipk
+          path: bin/packages/${{ matrix.arch }}/packages_ci/*.ipk
